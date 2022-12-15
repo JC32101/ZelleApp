@@ -52,18 +52,18 @@ function setAction(ac) {
 //     console.log(userslist)
 // }, [userslist])
 
-// function getUsers(){
-//     const usersCollect = firebase.firestore().collection("user")
-//     getDocs(usersCollect)
-//         .then(response => {
-//             console.log(response)
-//         const users = response.docs.map(doc => ({
-//             data: doc.data(),
-//             id: doc.id}))
-//             setUsers(userslist)
-//     })
-//         .catch(error => console.log(error))
-// }
+function getUsers(){
+    const usersCollect = firebase.firestore().collection("user")
+    getDocs(usersCollect)
+        .then(response => {
+            console.log(response)
+        const users = response.docs.map(doc => ({
+            data: doc.data(),
+            id: doc.id}))
+            setUsers(userslist)
+    })
+        .catch(error => console.log(error))
+}
 
 export default class App extends Component {
     state = {
