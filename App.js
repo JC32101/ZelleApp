@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { Component } from 'react';
-import { AppRegistry, Text, View, ScrollView, StyleSheet, Image, TouchableHighlight, ImageBackground, Alert, Dimensions, TextInput } from 'react-native';
+import { AppRegistry, Text, View, ScrollView, StyleSheet, Image, TouchableHighlight, Dimensions, TextInput } from 'react-native';
 import Constants from 'expo-constants';
 import { firebase } from './firebase';
 
@@ -8,6 +8,7 @@ let deviceHeight = Dimensions.get('window').height;
 let deviceWidth = Dimensions.get('window').width;
 
 // Reference: https://www.youtube.com/watch?time_continue=1478&v=F7t-n5c7JsE&feature=emb_title
+
 //  Add data
 const addUser = async () => {
     firebase.firestore()
@@ -29,7 +30,6 @@ var action = "";
 
 function setRecipient(r) {
     recipient = r;
-
 }
 function setPhoneNum(p) {
     phoneNum = p;
@@ -41,29 +41,50 @@ function setAction(ac) {
     action = ac;
 }
 
+var row = 1;
+let userList = [
+    {
+        action: 'splitted',
+        amount: '$23',
+        phonenum: '2342342345',
+        recipient: 'Gollup',
+    },
+];
+
+function setUser(act, amo, phon, rec){
+    userList.push( {
+        action: act,
+        amount: amo,
+        phonenum: phon,
+        recipient: rec,
+    });
+    // userList.push((key=action, value=act), (key=amount, value=amo), (key=phonenum, value=phon), (key=recipient, value=rec));
+    // row++;
+    printUserList();
+}
+
+function printUserList(){
+    for(let i = 0; i < userList.length; i++){
+        console.log(i, ': ', userList[i]);
+    }
+}
+
 //  Retrieve data
-// const [userslist, setUsers] = useState([])
-
-// useEffect(() => {
-//     getUsers()
-// }, [])
-
-// useEffect(() => {
-//     console.log(userslist)
-// }, [userslist])
-
 function getUsers(){
     const usersCollect = firebase.firestore().collection("user")
-    getDocs(usersCollect)
-        .then(response => {
-            console.log(response)
-        const users = response.docs.map(doc => ({
-            data: doc.data(),
-            id: doc.id}))
-            setUsers(userslist)
+    .get()
+    .then(collectionSnapshot => {
+        console.log('Total users: ', collectionSnapshot.size);
+        collectionSnapshot
+            .forEach(documentSnapshot => {
+                console.log('User ID: ', documentSnapshot.id, documentSnapshot.data());
+                setUser(documentSnapshot.data().action, documentSnapshot.data().amount, documentSnapshot.data().phonenum, documentSnapshot.data().recipient);
+            });
     })
-        .catch(error => console.log(error))
+    .catch(error => console.log(error));
 }
+
+getUsers();
 
 export default class App extends Component {
     state = {
@@ -79,22 +100,6 @@ export default class App extends Component {
         amount: '$',
         action: '',
     }
-    
-    // addUser(){
-        
-    // }
-
-    // onUserAdded = (recipient, phoneNum, amount, action) => {
-    //     console.log("user added");
-    //     console.log(recipient, phoneNum, amount, action);
-    // }
-
-    // onUserReceived = (userList) => {
-    //     console.log(userList);
-    //     this.setState(prevState => ({
-    //         userList: prevState.userList = userList
-    //     }));
-    // }
 
     backToMain  = () => this.setState(state => ({
         mainscreen: 'block',
@@ -429,143 +434,30 @@ export default class App extends Component {
                     </View>
                     
                     <ScrollView>
-                        <View style={styles.listItem}>
-                            <View style={styles.topHalf}>
-                                <View style={styles.profilePic}>
-                                    <Image
-                                    source={{ uri: 'https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-Image.png' }}
-                                    style={{ height: 30, width: 30 }}
-                                    />
+                        {userList.map((user) => (
+                            <View style={styles.listItem}>
+                                <View style={styles.topHalf}>
+                                    <View style={styles.profilePic}>
+                                        <Image
+                                        source={{ uri: 'https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-Image.png' }}
+                                        style={{ height: 30, width: 30 }}
+                                        />
+                                    </View>
+                                    <Text style={styles.activityName}>
+                                        {user.recipient}
+                                    </Text>
                                 </View>
-                                <Text style={styles.activityName}>
-                                    Henry Carr
-                                </Text>
-                            </View>
-                            <View style={styles.bottomHalf}>
-                                <Text style={styles.activityMoney}> 
-                                    -$36.00
-                                </Text>
-                                
-                                <Text style={styles.activityDate}> 
-                                    10/27/2022
-                                </Text>
-                            </View>
-                        </View>
-                            
-                        <View style={styles.listItem}>
-                            <View style={styles.topHalf}>
-                                <View style={styles.profilePic}>
-                                    <Image
-                                    source={{ uri: 'https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-Image.png' }}
-                                    style={{ height: 30, width: 30 }}
-                                    />
+                                <View style={styles.bottomHalf}>
+                                    <Text style={styles.activityMoney}> 
+                                        {user.amount}
+                                    </Text>
+                                    
+                                    <Text style={styles.activityDate}> 
+                                        {user.action}
+                                    </Text>
                                 </View>
-                                <Text style={styles.activityName}>
-                                    Adam Bell
-                                </Text>
                             </View>
-                            <View style={styles.bottomHalf}>
-                                <Text style={styles.activityMoney}> 
-                                    +$5.75
-                                </Text>
-                                
-                                <Text style={styles.activityDate}> 
-                                    10/15/2022
-                                </Text>
-                            </View>
-                        </View>
-                            
-                        <View style={styles.listItem}>
-                            <View style={styles.topHalf}>
-                                <View style={styles.profilePic}>
-                                    <Image
-                                    source={{ uri: 'https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-Image.png' }}
-                                    style={{ height: 30, width: 30 }}
-                                    />
-                                </View>
-                                <Text style={styles.activityName}>
-                                    Alice Lawry
-                                </Text>
-                            </View>
-                            <View style={styles.bottomHalf}>
-                                <Text style={styles.activityMoney}> 
-                                    -$20.00
-                                </Text>
-                                
-                                <Text style={styles.activityDate}> 
-                                    10/14/2022
-                                </Text>
-                            </View>
-                        </View>
-                            
-                        <View style={styles.listItem}>
-                            <View style={styles.topHalf}>
-                                <View style={styles.profilePic}>
-                                    <Image
-                                    source={{ uri: 'https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-Image.png' }}
-                                    style={{ height: 30, width: 30 }}
-                                    />
-                                </View>
-                                <Text style={styles.activityName}>
-                                    Alex Cruz
-                                </Text>
-                            </View>
-                            <View style={styles.bottomHalf}>
-                                <Text style={styles.activityMoney}> 
-                                    -$27.50
-                                </Text>
-                                
-                                <Text style={styles.activityDate}> 
-                                    10/06/2022
-                                </Text>
-                            </View>
-                        </View>
-                            
-                        <View style={styles.listItem}>
-                            <View style={styles.topHalf}>
-                                <View style={styles.profilePic}>
-                                    <Image
-                                    source={{ uri: 'https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-Image.png' }}
-                                    style={{ height: 30, width: 30 }}
-                                    />
-                                </View>
-                                <Text style={styles.activityName}>
-                                    Lizzy Smith
-                                </Text>
-                            </View>
-                            <View style={styles.bottomHalf}>
-                                <Text style={styles.activityMoney}> 
-                                    +$50.00
-                                </Text>
-                                
-                                <Text style={styles.activityDate}> 
-                                    09/30/2022
-                                </Text>
-                            </View>
-                        </View>
-                            
-                        <View style={styles.listItem}>
-                            <View style={styles.topHalf}>
-                                <View style={styles.profilePic}>
-                                    <Image
-                                    source={{ uri: 'https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-Image.png' }}
-                                    style={{ height: 30, width: 30 }}
-                                    />
-                                </View>
-                                <Text style={styles.activityName}>
-                                    Nyla Glaspy
-                                </Text>
-                            </View>
-                            <View style={styles.bottomHalf}>
-                                <Text style={styles.activityMoney}> 
-                                    -$45.00
-                                </Text>
-                                
-                                <Text style={styles.activityDate}> 
-                                    09/15/2022
-                                </Text>
-                            </View>
-                        </View>
+                        ))}
                     </ScrollView>
                     
                 </View>
@@ -603,78 +495,24 @@ export default class App extends Component {
                     </View>
                         
                     <ScrollView>
-                        <View style={styles.recipientContainer}>
-                            <View style={styles.listProfile}>
-                                <Image
-                                    source={{ uri: 'https://codehs.com/uploads/85b0857df9b112bbe7846aa520255c4e' }}
-                                    style={{ height: 40, width: 40, marginLeft: 20 }}
-                                />
-                            
-                                <Text style={styles.recipientname}>
-                                    Adam Bell
-                                </Text>
+                        {userList.map((user) => (
+                            <View style={styles.recipientContainer}>
+                                <View style={styles.listProfile}>
+                                    <Image
+                                        source={{ uri: 'https://codehs.com/uploads/85b0857df9b112bbe7846aa520255c4e' }}
+                                        style={{ height: 40, width: 40, marginLeft: 20 }}
+                                    />
                                 
-                                <Text style={styles.mobilephone}>
-                                    917-442-7981
-                                </Text>
-                                <Text style={styles.email}>
-                                    adambell1234@gmail.com
-                                </Text>
+                                    <Text style={styles.recipientname}>
+                                        {user.recipient}
+                                    </Text>
+                                    
+                                    <Text style={styles.mobilephone}>
+                                        {user.phonenum}
+                                    </Text>
+                                </View>
                             </View>
-                            
-                            <View style={styles.listProfile}>
-                                <Image
-                                    source={{ uri: 'https://codehs.com/uploads/85b0857df9b112bbe7846aa520255c4e' }}
-                                    style={{ height: 40, width: 40, marginLeft: 20 }}
-                                />
-                                <Text style={styles.recipientname}>
-                                    Henry Carr
-                                </Text>
-                                
-                                <Text style={styles.mobilephone}>
-                                    347-232-1496
-                                </Text>
-                                <Text style={styles.email}>
-                                    carrhenry@hotmail.com
-                                </Text>
-                            </View>
-                            
-                            <View style={styles.listProfile}>
-                                <Image
-                                    source={{ uri: 'https://codehs.com/uploads/85b0857df9b112bbe7846aa520255c4e' }}
-                                    style={{ height: 40, width: 40, marginLeft: 20 }}
-                                />
-                                
-                                <Text style={styles.recipientname}>
-                                    Alex Cruz
-                                </Text>
-                                
-                                <Text style={styles.mobilephone}>
-                                    212-859-4523
-                                </Text>
-                                <Text style={styles.email}>
-                                    alexcruz212@gmail.com
-                                </Text>
-                            </View>
-                            
-                            <View style={styles.listProfile}>
-                                <Image
-                                    source={{ uri: 'https://codehs.com/uploads/85b0857df9b112bbe7846aa520255c4e' }}
-                                    style={{ height: 40, width: 40, marginLeft: 20 }}
-                                />
-                                
-                                <Text style={styles.recipientname}>
-                                    Nyla Glaspy
-                                </Text>
-                                
-                                <Text style={styles.mobilephone}>
-                                    646-732-2461
-                                </Text>
-                                <Text style={styles.email}>
-                                    nylaaglaspy@aol.com
-                                </Text>
-                            </View>
-                        </View>
+                        ))}
                     </ScrollView>
                 </View>
             </View>
@@ -690,7 +528,7 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
   },
   topContainer: {
-      height: (deviceHeight/15),
+      height: (deviceHeight/12),
       width: deviceWidth,
       alignItems: 'center',
       justifyContent: 'center',
@@ -935,11 +773,11 @@ const styles = StyleSheet.create({
       height: deviceHeight/15,
   },
   listProfile: {
-      marginBottom: 10,
+      marginBottom: 5,
       backgroundColor: 'lightgray',
       width: deviceWidth,
-      paddingTop: 5,
-      paddingBottom: 5,
+      paddingTop: 10,
+      paddingBottom: 10,
   },
   recipientname: {
       justifyContent: 'down',
@@ -953,13 +791,8 @@ const styles = StyleSheet.create({
       fontSize: 15,
       marginLeft: 20,
   },
-  email: {
-      fontFamily: 'Futura',
-      fontSize: 15,
-      marginLeft: 20,
-  },
   recipientContainer: {
-      height: 12*(deviceHeight/15),
-      marginTop: 15,
+      height: 2*(deviceHeight/15),
+      marginTop: 3,
   },
 });
